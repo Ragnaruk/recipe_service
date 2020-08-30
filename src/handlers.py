@@ -1,3 +1,5 @@
+import json
+
 from aiohttp import web
 
 from src.recipes import (
@@ -50,7 +52,7 @@ async def handler_recipes(request: web.Request):
     possible_recipes = await get_recipes_from_components(fridge_components)
     logger.debug("Possible recipes: {}".format(possible_recipes))
 
-    return web.json_response(possible_recipes)
+    return web.json_response(text=json.dumps(possible_recipes, ensure_ascii=False))
 
 
 @routes.get("/recipes/last")
@@ -66,7 +68,7 @@ async def handler_last_recommended_recipes(request: web.Request):
     recommended_recipes = await get_last_recommended_recipes()
     logger.debug("Recommended recipes: {}".format(recommended_recipes))
 
-    return web.json_response(recommended_recipes)
+    return web.json_response(text=json.dumps(recommended_recipes, ensure_ascii=False))
 
 
 @routes.get("/components/popular")
@@ -82,4 +84,8 @@ async def handler_popular_components(request: web.Request):
     most_popular_components = await get_most_popular_components()
     logger.debug("Most popular components: {}".format(most_popular_components))
 
-    return web.json_response(most_popular_components)
+    import json
+
+    return web.json_response(
+        text=json.dumps(most_popular_components, ensure_ascii=False)
+    )
