@@ -48,6 +48,30 @@ async def test_proceed_payload_invalid_format_not_int():
         await process_payload(json.dumps(payload))
 
 
+async def test_get_last_recommended_recipes_none():
+    expected_result = {"last_recommended_recipes": []}
+    result = await get_last_recommended_recipes()
+
+    assert expected_result == result
+
+
+async def test_get_last_recommended_recipes_some():
+    fridge_components = {
+        "мясо": 200,
+        "огурец": 1,
+        "картофель": 10,
+    }
+
+    await get_recipes_from_components(fridge_components)
+
+    expected_result = {
+        "last_recommended_recipes": ["Салат «Ленинградский»", "Салат «Русский»"]
+    }
+    result = await get_last_recommended_recipes()
+
+    assert expected_result == result
+
+
 async def test_get_recipes_from_components_possible():
     fridge_components = {
         "мясо": 200,
@@ -109,29 +133,5 @@ async def test_get_most_popular_components_some():
         ]
     }
     result = await get_most_popular_components()
-
-    assert expected_result == result
-
-
-async def test_get_last_recommended_recipes_none():
-    expected_result = {"last_recommended_recipes": []}
-    result = await get_last_recommended_recipes()
-
-    assert expected_result == result
-
-
-async def test_get_last_recommended_recipes_some():
-    fridge_components = {
-        "мясо": 200,
-        "огурец": 1,
-        "картофель": 10,
-    }
-
-    await get_recipes_from_components(fridge_components)
-
-    expected_result = {
-        "last_recommended_recipes": ["Салат «Ленинградский»", "Салат «Русский»"]
-    }
-    result = await get_last_recommended_recipes()
 
     assert expected_result == result

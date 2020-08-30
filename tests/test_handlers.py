@@ -12,20 +12,24 @@ async def test_handler_index(aiohttp_client, get_app):
 async def test_handler_recipes_correct(aiohttp_client, get_app):
     client = await aiohttp_client(get_app)
 
-    payload = json.dumps({
-        "мясо": 200,
-        "огурец": 1,
-        "картофель": 10,
-    })
+    payload = json.dumps(
+        {
+            "мясо": 200,
+            "огурец": 1,
+            "картофель": 10,
+        }
+    )
 
     response = await client.post("/recipes/possible", data=payload)
 
     assert response.status == 200
 
-    expected_result = json.dumps([
-        {"name": "Салат «Русский»", "quantity": 0.5},
-        {"name": "Салат «Ленинградский»", "quantity": 0.4},
-    ])
+    expected_result = json.dumps(
+        [
+            {"name": "Салат «Русский»", "quantity": 0.5},
+            {"name": "Салат «Ленинградский»", "quantity": 0.4},
+        ]
+    )
     result = await response.text()
 
     assert expected_result == result
@@ -49,11 +53,13 @@ async def test_handler_recipes_invalid_decode(aiohttp_client, get_app):
 async def test_handler_recipes_invalid_data(aiohttp_client, get_app):
     client = await aiohttp_client(get_app)
 
-    payload = json.dumps({
-        "мясо": 200,
-        "огурец": 1,
-        "test": 1,
-    })
+    payload = json.dumps(
+        {
+            "мясо": 200,
+            "огурец": 1,
+            "test": 1,
+        }
+    )
 
     response = await client.post("/recipes/possible", data=payload)
 
@@ -85,15 +91,17 @@ async def test_handler_popular_components(aiohttp_client, get_app):
 
     assert response.status == 200
 
-    expected_result = json.dumps({
-        "most_popular_components": [
-            {"яйцо": 0},
-            {"рыба": 0},
-            {"огурец": 0},
-            {"мясо": 0},
-            {"картофель": 0},
-        ]
-    })
+    expected_result = json.dumps(
+        {
+            "most_popular_components": [
+                {"яйцо": 0},
+                {"рыба": 0},
+                {"огурец": 0},
+                {"мясо": 0},
+                {"картофель": 0},
+            ]
+        }
+    )
     result = await response.text()
 
     assert expected_result == result

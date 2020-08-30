@@ -6,7 +6,6 @@ from src.recipes import (
     get_last_recommended_recipes,
     get_most_popular_components,
 )
-from src.exceptions import JSONValidationError
 from src.log import logger
 
 

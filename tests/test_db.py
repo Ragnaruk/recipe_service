@@ -15,7 +15,7 @@ async def test_db_fill():
 
     await execute_query(
         "INSERT INTO recipes (recipe_name, components) VALUES (?,?)",
-        (new_recipe_name, json.dumps(new_recipe_components))
+        (new_recipe_name, json.dumps(new_recipe_components)),
     )
 
     recipes_middle = await get_query_results("SELECT * FROM recipes")
@@ -57,7 +57,7 @@ async def test_execute_query():
 
     await execute_query(
         "INSERT INTO recipes (recipe_name, components) VALUES (?,?)",
-        (new_recipe_name, json.dumps(new_recipe_components))
+        (new_recipe_name, json.dumps(new_recipe_components)),
     )
 
     recipes_after = await get_query_results("SELECT * FROM recipes")

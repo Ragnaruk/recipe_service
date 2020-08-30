@@ -64,7 +64,9 @@ async def get_query_results(
             return await cursor.fetchall()
 
 
-def db_fill(file_path: Path = FILE_PATH, db_path: Path = DB_PATH, force_recreate: bool = False) -> bool:
+def db_fill(
+    file_path: Path = FILE_PATH, db_path: Path = DB_PATH, force_recreate: bool = False
+) -> bool:
     """
     Create a database and transfer data from text file to it.
     Does nothing if db already exists.
