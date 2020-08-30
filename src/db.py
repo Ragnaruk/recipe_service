@@ -2,122 +2,111 @@
 Рецептов мало, поэтому нет смысла использовать внешние базы данных
  вроде Redis или PostgreSQL.
 
-sqlitedict позволяет работать с базой данных из нескольких потоков,
- но не дает повышенной производительности по сравнению с доступом
- из одного потока.
+https://github.com/omnilib/aiosqlite
 """
+import aiosqlite
+import sqlite3
 import json
 
-from aiohttp_cache import cache
 from pathlib import Path
-from time import time
-from sqlitedict import SqliteDict
 
-from data.config import FILE_PATH, DB_PATH
-from log import log
+from data.config import DB_PATH, FILE_PATH
 
 
-def fill_db(file_path: Path = FILE_PATH, db_path: Path = DB_PATH):
+async def get_db(db_path: Path = DB_PATH) -> aiosqlite.Connection:
     """
-    Transfer data from text file to db.
+    Get aiosqlite connection proxy.
 
-    Schema:
-    - recipes (list)
-    -- name
-    -- components (list)
-    --- item
-    --- q
-    - components (dict)
-    -- item : times_encountered
+    :param db_path: path to database.
+    :return: aiosqlite connection proxy.
+    """
+    return aiosqlite.connect(db_path)
+
+
+async def execute_query(query: str, parameters: tuple = (), db_path: Path = DB_PATH):
+    """
+    Execute and commit query.
+
+    :param query: query to execute.
+    :param parameters: parameters to insert into query.
+    :param db_path: path to database.
+    :return: query results.
+    """
+    async with await get_db(db_path) as db:
+        await db.execute(query, parameters)
+        await db.commit()
+
+
+async def get_query_results(
+    query: str, parameters: tuple = (), db_path: Path = DB_PATH
+) -> list:
+    """
+    Execute query and return results.
+
+    :param query: query to execute.
+    :param parameters: parameters to insert into query.
+    :param db_path: path to database.
+    :return: query results.
+    """
+    async with await get_db(db_path) as db:
+        async with await db.execute(query, parameters) as cursor:
+            return await cursor.fetchall()
+
+
+def fill_db(file_path: Path = FILE_PATH, db_path: Path = DB_PATH) -> bool:
+    """
+    Create a database and transfer data from text file to it.
+    Does nothing if db already exists.
 
     :param file_path: path to file with data.
     :param db_path: path to database.
+    :return: True if db was created, False if it already exists.
     """
 
     def get_recipes():
-        with file_path.open() as f:
-            return json.load(f)
+        with file_path.open(encoding="UTF-8") as f:
+            return json.load(f)["recipes"]
 
-    db_path.touch(exist_ok=True)
+    if db_path.is_file():
+        return False
 
-    with SqliteDict(db_path, autocommit=True) as db:
-        # List of recipes
-        db["recipes"] = []
+    db_path.touch()
 
-        # Dict of components and an integer to count their encounters
-        db["component_encounters"] = {}
+    with sqlite3.connect(db_path) as db:
+        cursor = db.cursor()
 
-        # List of component names to validate input
-        db["component_list"] = []
+        cursor.execute(
+            "CREATE TABLE IF NOT EXISTS recipes "
+            "(recipe_name TEXT PRIMARY KEY,"  # name of the recipe
+            " components TEXT NOT NULL,"  # json of ingredients
+            " last_recommended INTEGER DEFAULT 0)"  # unix time of the last usage in recommendation
+        )
+        cursor.execute(
+            "CREATE TABLE IF NOT EXISTS components "
+            "(component TEXT PRIMARY KEY,"  # name of ingredient
+            " total_encountered)"  # number of times it appeared in fridges
+        )
 
-        for recipe in get_recipes()["recipes"]:
-            recipe["last_recommended"] = 0
-
-            db["recipes"].append(recipe)
-
+        unique_components = set()
+        for recipe in get_recipes():
             for component in recipe["components"]:
-                if component["item"] not in db["component_list"]:
-                    db["component_list"].append(component["item"])
-                    db["component_encounters"][component["item"]] = 0
+                unique_components.add(component["item"])
+
+            cursor.execute(
+                "INSERT INTO recipes (recipe_name, components) VALUES (?,?)",
+                (recipe["name"], json.dumps(recipe["components"], ensure_ascii=False)),
+            )
+
+        for component in unique_components:
+            cursor.execute(
+                "INSERT INTO components (component, total_encountered) VALUES (?,?)",
+                (component, 0),
+            )
+
+        db.commit()
+
+    return True
 
 
-@cache()
-def select_component_list(db_path: Path = DB_PATH):
-    """
-    Return list of all possible components.
-
-    :param db_path: path to database.
-    :return: list of components.
-    """
-    with SqliteDict(db_path, flag="r") as db:
-        return db["component_list"]
-
-
-def select_recommended_recipes(cutoff_point: int, db_path: Path = DB_PATH):
-    """
-    Return recipes which has been recommended since cutoff_point.
-
-    :param cutoff_point: time limit.
-    :param db_path: path to database.
-    :return: iterator of rows.
-    """
-    with SqliteDict(db_path, flag="r") as db:
-        for recipe in db["recipes"]:
-            last_recommended = recipe["last_recommended"]
-
-            if last_recommended > cutoff_point:
-                yield recipe["name"]
-
-
-@cache()
-def select_recipes_by_components(components: list, db_path: Path = DB_PATH):
-    """
-    Return all recipes containing only components on the components list.
-    Also, update component_encounters values.
-
-    :param components: list of components.
-    :param db_path: path to database.
-    :return: iterator of recipes.
-    """
-    with SqliteDict(db_path, autocommit=True) as db:
-        for component in components:
-            db["component_encounters"][component] += 1
-
-        for recipe in db["recipes"]:
-            recipe_components = [c["item"] for c in recipe["components"]]
-
-            if set(recipe_components).issubset(set(components)):
-                recipe["last_recommended"] = time()
-
-                yield recipe
-
-
-def select_component_encounters(db_path: Path = DB_PATH):
-    """
-    Return dict of component encounters.
-
-    :param db_path: path to database.
-    :return: dict of component encounters.
-    """
-    with SqliteDict(db_path, flag="r") as db:
-        return db["component_encounters"]
+if __name__ == "__main__":
+    fill_db()
