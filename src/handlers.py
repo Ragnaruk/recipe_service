@@ -1,7 +1,7 @@
 from aiohttp import web
 
 from src.recipes import (
-    proceed_payload,
+    process_payload,
     get_recipes_from_components,
     get_last_recommended_recipes,
     get_most_popular_components,
@@ -45,16 +45,13 @@ async def handler_recipes(request: web.Request):
 
     payload = await request.text()
 
-    try:
-        fridge_components = await proceed_payload(payload)
-        logger.debug("Received payload: {}".format(fridge_components))
-    except JSONValidationError:
-        return web.json_response({"error": "Incorrect JSON object."})
-    else:
-        possible_recipes = await get_recipes_from_components(fridge_components)
-        logger.debug("Possible recipes: {}".format(possible_recipes))
+    fridge_components = await process_payload(payload)
+    logger.debug("Received payload: {}".format(fridge_components))
 
-        return web.json_response(possible_recipes)
+    possible_recipes = await get_recipes_from_components(fridge_components)
+    logger.debug("Possible recipes: {}".format(possible_recipes))
+
+    return web.json_response(possible_recipes)
 
 
 @routes.get("/recipes/last")
