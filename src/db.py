@@ -1,7 +1,4 @@
 """
-Рецептов мало, поэтому нет смысла использовать внешние базы данных
- вроде Redis или PostgreSQL.
-
 https://github.com/omnilib/aiosqlite
 """
 import aiosqlite
