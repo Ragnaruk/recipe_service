@@ -1,8 +1,31 @@
-import pytest
 import json
 
 from data.config import FILE_PATH
-from src.db import get_query_results, execute_query
+from src.db import db_fill, get_query_results, execute_query
+
+
+async def test_db_fill():
+    """
+    Test db recreation.
+    """
+    recipes_before = await get_query_results("SELECT * FROM recipes")
+
+    new_recipe_name = "test_recipe"
+    new_recipe_components = [{"item": "мясо", "q": 1000}]
+
+    await execute_query(
+        "INSERT INTO recipes (recipe_name, components) VALUES (?,?)",
+        (new_recipe_name, json.dumps(new_recipe_components))
+    )
+
+    recipes_middle = await get_query_results("SELECT * FROM recipes")
+
+    db_fill(force_recreate=True)
+
+    recipes_after = await get_query_results("SELECT * FROM recipes")
+
+    assert recipes_before != recipes_middle
+    assert recipes_before == recipes_after
 
 
 async def test_get_query_results():
