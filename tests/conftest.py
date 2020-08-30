@@ -1,7 +1,6 @@
 import pytest
 import asyncio
 
-from pathlib import Path
 from aiohttp import web
 
 from src.handlers import routes

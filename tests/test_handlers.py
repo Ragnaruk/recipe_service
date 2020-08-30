@@ -28,7 +28,8 @@ async def test_handler_recipes_correct(aiohttp_client, get_app):
         [
             {"name": "Салат «Русский»", "quantity": 0.5},
             {"name": "Салат «Ленинградский»", "quantity": 0.4},
-        ]
+        ],
+        ensure_ascii=False,
     )
     result = await response.text()
 
@@ -78,7 +79,7 @@ async def test_handler_last_recommended_recipes(aiohttp_client, get_app):
 
     assert response.status == 200
 
-    expected_result = json.dumps({"last_recommended_recipes": []})
+    expected_result = json.dumps({"last_recommended_recipes": []}, ensure_ascii=False)
     result = await response.text()
 
     assert expected_result == result
@@ -100,7 +101,8 @@ async def test_handler_popular_components(aiohttp_client, get_app):
                 {"мясо": 0},
                 {"картофель": 0},
             ]
-        }
+        },
+        ensure_ascii=False,
     )
     result = await response.text()
 
