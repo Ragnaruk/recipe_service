@@ -7,6 +7,8 @@ class JSONValidationError(web.HTTPError):
     def __init__(self, message="Invalid JSON payload.", status_code=400, **kwargs):
         self.status_code = status_code
 
+        super().__init__(reason=message)
+
         msg = {"error": message}
 
         if kwargs:
