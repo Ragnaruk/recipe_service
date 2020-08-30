@@ -5,5 +5,5 @@ services:
       context: .
     image: ragnaruk/recipe_service:latest
     ports:
-    - 8888:8888
+    - 8080:8080
     command: ['python', './src/server.py']
