@@ -1,9 +1,10 @@
 import logging
 
 from aiohttp import web
+from aiohttp_cache import setup_cache
 
 from src.handlers import routes
-from src.db import fill_db
+from src.db import db_fill
 from src.log import logger
 from data.config import OVERALL_LOG_LEVEL
 
@@ -12,7 +13,7 @@ async def db_init(app):
     """
     If db doesn't exist, create it and transfer data from file.
     """
-    if fill_db():
+    if db_fill():
         logger.debug("Database created.")
     else:
         logger.debug("Database already exists.")
@@ -26,6 +27,8 @@ def start_server(host: str = "0.0.0.0", port: int = 8080):
     :param port: port of the server.
     """
     app = web.Application()
+
+    setup_cache(app)
 
     for route in routes:
         logger.debug("Adding route: {}.".format(route))
