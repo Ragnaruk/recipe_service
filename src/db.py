@@ -122,6 +122,11 @@ def db_fill(
 
 
 def db_remove(db_path: Path = DB_PATH):
+    """
+    Remove db file if it exists.
+
+    :param db_path: path to database.
+    """
     if db_path.is_file():
         db_path.unlink()
 
