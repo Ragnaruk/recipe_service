@@ -4,6 +4,8 @@ services:
     build:
       context: .
     image: ragnaruk/recipe_service:latest
+    volumes:
+      - ./data/:/recipe_service/data/
     ports:
-    - 8080:8080
-    command: ['python', './src/server.py']
+      - 8080:8080
+    command: ['python', './src/']
