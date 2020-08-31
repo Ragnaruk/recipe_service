@@ -9,7 +9,7 @@ from src.log import logger
 from data.config import DB_PATH
 
 
-async def process_payload(payload: str, db_path: Path = DB_PATH):
+async def process_payload(payload: str, db_path: Path = DB_PATH) -> dict:
     """
     Receive a string payload and return a json or an JSONValidationError exception.
     Payload should be a valid JSON and a dictionary.
@@ -44,7 +44,9 @@ async def process_payload(payload: str, db_path: Path = DB_PATH):
     return data
 
 
-async def get_recipes_from_components(fridge_components: dict, db_path: Path = DB_PATH):
+async def get_recipes_from_components(
+    fridge_components: dict, db_path: Path = DB_PATH
+) -> list:
     """
     Return possible recipes and the quantity that can be cooked from components list.
 
@@ -118,7 +120,7 @@ async def get_recipes_from_components(fridge_components: dict, db_path: Path = D
 
 async def get_last_recommended_recipes(
     time_period: int = 3600, db_path: Path = DB_PATH
-):
+) -> dict:
     """
     Return recipes which have been recommended in the last time_period
 
@@ -145,7 +147,7 @@ async def get_last_recommended_recipes(
 
 async def get_most_popular_components(
     number_of_products: int = 10, db_path: Path = DB_PATH
-):
+) -> dict:
     """
     Return number_of_products most popular products in users' fridges.
 

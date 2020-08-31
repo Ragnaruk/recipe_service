@@ -9,7 +9,7 @@ from src.log import logger
 from data.config import OVERALL_LOG_LEVEL
 
 
-async def db_init(app):
+async def db_init(app) -> None:
     """
     If db doesn't exist, create it and transfer data from file.
     """
@@ -19,7 +19,7 @@ async def db_init(app):
         logger.debug("Database already exists.")
 
 
-def start_server(host: str = "0.0.0.0", port: int = 8080):
+def start_server(host: str = "0.0.0.0", port: int = 8080) -> None:
     """
     Start aiohttp server.
 
@@ -41,7 +41,7 @@ def start_server(host: str = "0.0.0.0", port: int = 8080):
     web.run_app(app, host=host, port=port)
 
 
-def main():
+def main() -> None:
     """
     Set logging level and launch server.
     """

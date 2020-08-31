@@ -15,7 +15,7 @@ routes = web.RouteTableDef()
 
 
 @routes.get("/")
-async def handler_index(request: web.Request):
+async def handler_index(request: web.Request) -> web.Response:
     page = """
     <!DOCTYPE html>
     <html lang="en">
@@ -35,7 +35,7 @@ async def handler_index(request: web.Request):
 
 
 @routes.post("/recipes/possible")
-async def handler_recipes(request: web.Request):
+async def handler_recipes(request: web.Request) -> web.Response:
     """
     Receives json with components and returns json with possible recipes.
 
@@ -56,7 +56,7 @@ async def handler_recipes(request: web.Request):
 
 
 @routes.get("/recipes/last")
-async def handler_last_recommended_recipes(request: web.Request):
+async def handler_last_recommended_recipes(request: web.Request) -> web.Response:
     """
     Returns recipes recommended in the last hour.
 
@@ -72,7 +72,7 @@ async def handler_last_recommended_recipes(request: web.Request):
 
 
 @routes.get("/components/popular")
-async def handler_popular_components(request: web.Request):
+async def handler_popular_components(request: web.Request) -> web.Response:
     """
     Returns 10 most popular components in users' fridges.
 

@@ -23,7 +23,9 @@ async def get_db(db_path: Path = DB_PATH) -> aiosqlite.Connection:
     return aiosqlite.connect(db_path)
 
 
-async def execute_query(query: str, parameters: tuple = (), db_path: Path = DB_PATH):
+async def execute_query(
+    query: str, parameters: tuple = (), db_path: Path = DB_PATH
+) -> None:
     """
     Execute and commit query.
 
@@ -121,7 +123,7 @@ def db_fill(
     return True
 
 
-def db_remove(db_path: Path = DB_PATH):
+def db_remove(db_path: Path = DB_PATH) -> None:
     """
     Remove db file if it exists.
 
