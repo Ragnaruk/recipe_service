@@ -84,8 +84,6 @@ async def handler_popular_components(request: web.Request):
     most_popular_components = await get_most_popular_components()
     logger.debug("Most popular components: {}".format(most_popular_components))
 
-    import json
-
     return web.json_response(
         text=json.dumps(most_popular_components, ensure_ascii=False)
     )
